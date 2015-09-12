@@ -1,0 +1,45 @@
+CREATE TABLE `m_document_classification` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) NULL,
+	`mindocs` INT(11) NULL,
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+CREATE TABLE `document_identifiers` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) NOT NULL DEFAULT '0',
+	`label` VARCHAR(50) NOT NULL DEFAULT '0',
+	`doc_class_id` INT(11) NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`),
+	CONSTRAINT `doc_class_if_FK_m_document_classfication` FOREIGN KEY (`doc_class_id`) REFERENCES `m_document_classification` (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+CREATE TABLE `doc_identifiers_mapping` (
+	`document_identifier_id` INT(11) NULL DEFAULT NULL,
+	`document_classification_id` INT(11) NULL DEFAULT NULL,
+	INDEX `FK_doc_identifier_mapping_m_document_identifiers` (`document_identifier_id`),
+	INDEX `FK_doc_identifier_mapping_m_document_classification` (`document_classification_id`),
+	CONSTRAINT `FK_doc_identifier_mapping_m_document_classification` FOREIGN KEY (`document_classification_id`) REFERENCES `m_document_classification` (`id`),
+	CONSTRAINT `FK_doc_identifier_mapping_m_document_identifiers` FOREIGN KEY (`document_identifier_id`) REFERENCES `document_identifiers` (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+;
+
+CREATE TABLE `m_client_identifier_mapping` (
+	`client_identifier_id` BIGINT(20) NOT NULL,
+	`document_classification_id` INT(3) NOT NULL,
+	CONSTRAINT `FK_m_client_identifier_mapping_m_client_Identifier` FOREIGN KEY (`client_identifier_id`) REFERENCES `m_client_identifier` (`id`),
+	CONSTRAINT `FK_m_client_identifier_mapping_m_document_classification` FOREIGN KEY (`document_classification_id`) REFERENCES `m_document_classification` (`id`)
+)
+ENGINE=InnoDB
+;
+
+
+

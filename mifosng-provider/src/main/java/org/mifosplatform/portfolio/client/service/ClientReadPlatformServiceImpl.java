@@ -22,6 +22,8 @@ import org.mifosplatform.infrastructure.core.service.Page;
 import org.mifosplatform.infrastructure.core.service.PaginationHelper;
 import org.mifosplatform.infrastructure.core.service.RoutingDataSource;
 import org.mifosplatform.infrastructure.core.service.SearchParameters;
+import org.mifosplatform.infrastructure.documentmanagement.data.DocumentClassificationData;
+import org.mifosplatform.infrastructure.documentmanagement.service.DocumentTypesReadPlatformService;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.mifosplatform.organisation.office.data.OfficeData;
 import org.mifosplatform.organisation.office.service.OfficeReadPlatformService;
@@ -59,18 +61,21 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
     private final ClientLookupMapper lookupMapper = new ClientLookupMapper();
     private final ClientMembersOfGroupMapper membersOfGroupMapper = new ClientMembersOfGroupMapper();
     private final ParentGroupsMapper clientGroupsMapper = new ParentGroupsMapper();
+    private final DocumentTypesReadPlatformService documentTypesReadPlatformService; 
 
     @Autowired
     public ClientReadPlatformServiceImpl(final PlatformSecurityContext context, final RoutingDataSource dataSource,
             final OfficeReadPlatformService officeReadPlatformService, final StaffReadPlatformService staffReadPlatformService,
             final CodeValueReadPlatformService codeValueReadPlatformService,
-            final SavingsProductReadPlatformService savingsProductReadPlatformService) {
+            final SavingsProductReadPlatformService savingsProductReadPlatformService,
+            final DocumentTypesReadPlatformService documentTypesReadPlatformService) {
         this.context = context;
         this.officeReadPlatformService = officeReadPlatformService;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.staffReadPlatformService = staffReadPlatformService;
         this.codeValueReadPlatformService = codeValueReadPlatformService;
         this.savingsProductReadPlatformService = savingsProductReadPlatformService;
+        this.documentTypesReadPlatformService = documentTypesReadPlatformService;
     }
 
     @Override
@@ -103,9 +108,11 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
 
         final List<CodeValueData> clientClassificationOptions = new ArrayList<>(
                 this.codeValueReadPlatformService.retrieveCodeValuesByCode(ClientApiConstants.CLIENT_CLASSIFICATION));
+        
+        final Collection<DocumentClassificationData> documentTypeDatas = this.documentTypesReadPlatformService.retrieveAllDocumentTypes();
 
         return ClientData.template(defaultOfficeId, new LocalDate(), offices, staffOptions, null, genderOptions, savingsProductDatas,
-                clientTypeOptions, clientClassificationOptions);
+                clientTypeOptions, clientClassificationOptions, documentTypeDatas);
     }
 
     @Override
@@ -663,7 +670,7 @@ public class ClientReadPlatformServiceImpl implements ClientReadPlatformService 
         final List<CodeValueData> narrations = new ArrayList<>(this.codeValueReadPlatformService.retrieveCodeValuesByCode(clientNarrations));
         final Collection<CodeValueData> clientTypeOptions = null;
         final Collection<CodeValueData> clientClassificationOptions = null;
-        return ClientData.template(null, null, null, null, narrations, null, null, clientTypeOptions, clientClassificationOptions);
+        return ClientData.template(null, null, null, null, narrations, null, null, clientTypeOptions, clientClassificationOptions, null);
     }
 
 }
